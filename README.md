@@ -20,7 +20,10 @@ Su objetivo es aplicar herramientas de control de versiones, gestion de dependen
 Lucas_Gallardo_Examen/
 ├── .github/
 │   └── workflows/
-│       └── maven.yml
+│       ├── maven.yml
+│       └── deployment.yml
+├── scripts/
+│   └── deployment-pipeline.sh
 ├── src/
 │   ├── main/
 │   │   └── java/
@@ -113,21 +116,66 @@ El flujo automatizado realiza las siguientes acciones:
 
 La ejecucion exitosa del workflow se verifica en la pestaña Actions del repositorio de GitHub.
 
-8- Evidencias
+8- Actividad 3: Pipeline de despliegue y rollback
 
-Las evidencias visuales se incorporaran en el documento llamado Lucas_Gallardo_Examen.docx 
+-8.1 Objetivo
 
-9- Estado de las actividades
+Implementar un pipeline de despliegue que ejecute pruebas de aceptación, despliegue una versión de la aplicación en un entorno de prueba 
+y permita recuperar la versión anterior cuando se detecta un fallo en las pruebas posteriores al despliegue.
+
+-8.2 Archivos implementados
+
+.github/workflows/deployment.yml: workflow de GitHub Actions que automatiza las pruebas, el despliegue y la demostración del rollback.
+
+scripts/deployment-pipeline.sh: script que compila el proyecto, ejecuta las pruebas automatizadas, realiza pruebas de aceptación HTTP, 
+despliega una versión y verifica su funcionamiento.
+
+-8.3 Etapas del pipeline
+
+Compilación y pruebas automatizadas: ejecuta mvn --batch-mode clean package.
+
+Pruebas de aceptación previas: comprueba que el endpoint HTTP /sumar responda correctamente a una solicitud con los parámetros a=3 y b=5.
+
+Despliegue en ambiente de prueba: prepara y despliega la versión generada en el directorio local de pruebas.
+
+Verificación posterior al despliegue: vuelve a ejecutar la prueba de aceptación sobre la versión desplegada.
+
+Rollback: si la prueba posterior al despliegue falla, restaura la versión anterior y comprueba que vuelva a responder correctamente.
+
+-8.4 Mecanismo de rollback
+
+El script conserva una copia de la versión anterior antes de realizar el despliegue. 
+Para comprobar el mecanismo de recuperación, se utiliza la variable SIMULATE_FAILURE=true, 
+que provoca un fallo controlado en la comparación del resultado esperado de la prueba de aceptación.
+Durante esta demostración, la aplicación responde con el resultado real, pero la comprobación espera deliberadamente un valor incorrecto. 
+El pipeline detecta el fallo de aceptación, restaura la versión anterior y vuelve a verificar su funcionamiento.
+Esta simulación permite comprobar el mecanismo de rollback sin introducir un defecto real en la aplicación.
+
+-8.5 Verificación
+
+El workflow CD - Despliegue y Rollback se ejecutó correctamente en GitHub Actions. 
+La ejecución incluyó las etapas de pruebas de aceptación, despliegue y demostración de recuperación mediante rollback.
+
+La evidencia del resultado se encuentra en el documento Lucas_Gallardo_Examen.docx.
+
+9- Evidencias
+
+Las capturas de los comandos, las pruebas automatizadas, la ejecución de los workflows, el despliegue exitoso 
+y la demostración del rollback se incorporan en el documento Lucas_Gallardo_Examen.docx.
+
+10- Estado de las actividades
 
 Actividad 1: Git y Maven
 
 Se configuraron el repositorio, las ramas, las dependencias y la estructura del proyecto Java.
 
-Actividad 2: Integracion continua y pruebas
+Actividad 2: Integración continua y pruebas
 
-Se implemento un workflow de GitHub Actions y se desarrollaron pruebas unitarias y una prueba de integracion HTTP. 
-La ejecucion local de las cuatro pruebas finalizo correctamente y el workflow se verifico con resultado exitoso.
+Se implementó un workflow de GitHub Actions y se desarrollaron pruebas unitarias y una prueba de integración HTTP. 
+La ejecución local de las cuatro pruebas finalizó correctamente y el workflow se verificó con resultado exitoso.
 
-Actividad 3: Despliegue y pruebas de aceptacion
+Actividad 3: Despliegue y pruebas de aceptación
 
-Pendiente.
+Se implementó el pipeline de despliegue mediante un script Bash y un workflow de GitHub Actions. 
+Se verificaron las pruebas de aceptación, el despliegue en ambiente de prueba y la recuperación de la versión anterior mediante rollback. 
+Las ejecuciones de CI y CD finalizaron correctamente.
