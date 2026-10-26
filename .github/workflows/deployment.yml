@@ -1,0 +1,48 @@
+name: CD - Despliegue y Rollback
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - feature/estructura-proyecto
+  pull_request:
+    branches:
+      - main
+      - develop
+  workflow_dispatch:
+
+jobs:
+  despliegue-pruebas:
+    name: Aceptacion, despliegue y rollback
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar codigo
+        uses: actions/checkout@v4
+
+      - name: Configurar Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      - name: Instalar herramienta HTTP
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y curl
+
+      - name: Dar permisos al script
+        run: chmod +x scripts/deployment-pipeline.sh
+
+      - name: Ejecutar pruebas de aceptacion y despliegue
+        env:
+          DEPLOY_VERSION: release-${{ github.sha }}
+        run: bash scripts/deployment-pipeline.sh
+
+      - name: Demostrar recuperacion mediante rollback
+        env:
+          DEPLOY_VERSION: rollback-demo-${{ github.sha }}
+          SIMULATE_FAILURE: 'true'
+        run: bash scripts/deployment-pipeline.sh
